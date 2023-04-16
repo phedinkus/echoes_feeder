@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rexml (3.2.5)
+    rss (0.2.9)
+      rexml
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rss
+
+BUNDLED WITH
+   2.3.11
