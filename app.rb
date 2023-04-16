@@ -7,6 +7,13 @@ require "./apple/music_client.rb"
 require "debug"
 
 get "/" do
-  Apple::MusicClient.get("catalog/us/charts", types: 'songs', limit: 100).body
+  @developer_token = Apple::MusicClient.authentication_token
+  erb :index
+  # Apple::MusicClient.get("catalog/us/charts", types: 'songs', limit: 100).body
   # EchoesFeed.get_most_recent_playlist_data.to_json
+end
+
+post "/" do
+  puts request.body.read
+  true
 end

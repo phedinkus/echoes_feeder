@@ -11,6 +11,10 @@ module Apple
       new.get(url, params)
     end
 
+    def self.authentication_token
+      new.authentication_token
+    end
+
     def initialize
       @secret_key_path = "AuthKey_#{ENV["APPLE_MUSIC_KEY_ID"]}.p8"
       @team_id = ENV["APPLE_TEAM_ID"]
@@ -31,6 +35,11 @@ module Apple
       http.request(req)
     end
 
+    def authentication_token
+      private_key = OpenSSL::PKey::EC.new(apple_music_secret_key)
+      JWT.encode authentication_payload, private_key, 'ES256', kid: @music_id
+    end
+
     private
 
     def authentication_payload
@@ -39,11 +48,6 @@ module Apple
         iat: Time.now.to_i,
         exp: @token_expire_at.to_i
       }
-    end
-
-    def authentication_token
-      private_key = OpenSSL::PKey::EC.new(apple_music_secret_key)
-      JWT.encode authentication_payload, private_key, 'ES256', kid: @music_id
     end
 
     def apple_music_secret_key
