@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 require "sinatra"
 require "sinatra/reloader" if development?
-require "./apple/music_client.rb"
+require "./apple_music/client.rb"
 
 require "debug"
 
 get "/authorize" do
-  @developer_token = Apple::MusicClient.authentication_token
+  @developer_token = AppleMusic::Client.authentication_token
   erb :"authorize/index"
 end
 
