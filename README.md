@@ -1,5 +1,6 @@
 # Echoes Feeder
 
+My favorite ambient radio show is [Echoes](https://echoes.org). They don't create playlists on Apple Music, my primary place to listen to music, but they publish their playlists in an RSS feed. This code fetches the feed, looks for the tracks on Apple Music, creates the playlist on my Apple Music account and tracks what has been successfully created.
 
 ## Requirements
  * Apple Developer Account to generate api key
