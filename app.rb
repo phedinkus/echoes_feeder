@@ -32,8 +32,7 @@ def create_apple_playlist(echoes_playlist, track_data)
   puts "\ncreating playlist on apple music..."
 
   name_parts = echoes_playlist.name.split(" – ")
-  date = Date.parse(name_parts.first).to_s
-  name = "#{date} #{name_parts.last}"
+  name = "#{echoes_playlist.created_at.to_date.to_s} #{name_parts.last}"
 
   res = AppleMusic::Client.post("me/library/playlists", {
     attributes: { name: name, description: ""},

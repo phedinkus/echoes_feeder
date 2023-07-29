@@ -2,42 +2,8 @@
 require "rss"
 require "nokogiri"
 require "ostruct"
-
-class Track
-  attr_reader :artist, :name, :album
-  attr_accessor :apple_data
-  def initialize(artist:, name:, album:)
-    @artist = artist
-    @name = name
-    @album = album
-  end
-
-  def to_json(options = {})
-    { artist: artist, name: name, album: album }.to_json(options)
-  end
-end
-
-class Playlist
-  attr_reader :name, :tracks, :created_at
-
-  def initialize(name:, tracks: [], created_at:)
-    @name = name
-    @tracks = tracks
-    @created_at = created_at
-  end
-
-  def self.create_from_feed(name:, raw_track_data:, created_at:)
-    tracks = raw_track_data.map do |row|
-      cells = row.css("td")
-      Track.new(
-        artist: cells[1].text,
-        name: cells[2].text,
-        album: cells[3].text
-      )
-    end
-    new(name: name, tracks: tracks, created_at: created_at)
-  end
-end
+require "./echoes_feed/playlist"
+require "./echoes_feed/track"
 
 class EchoesFeed
   URL = "https://echoes.org/category/playlists/feed"
