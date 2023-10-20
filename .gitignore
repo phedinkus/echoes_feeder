@@ -2,4 +2,4 @@
 .env
 music_user_token.json
 log/
-*.db
+*.db*

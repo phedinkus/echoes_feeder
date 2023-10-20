@@ -12,7 +12,4 @@ end
 
 post "/authorize" do
   file = File.open("music_user_token.json", "w") { |f| f.write request.body.read }
-  Sinatra::Application.quit!
 end
-
-run Sinatra::Application.run!

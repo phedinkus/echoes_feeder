@@ -2,8 +2,8 @@
 require "rss"
 require "nokogiri"
 require "ostruct"
-require "./echoes_feed/playlist"
-require "./echoes_feed/track"
+require_relative "./echoes_feed/playlist"
+require_relative "./echoes_feed/track"
 
 class EchoesFeed
   URL = "https://echoes.org/category/playlists/feed"
@@ -33,6 +33,9 @@ class EchoesFeed
 
   def most_recent_feed_item
     @feed_item ||= feed.items.first
+  end
+
+  def playlists_since(date)
   end
 
   def most_recent_playlist

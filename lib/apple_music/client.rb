@@ -5,7 +5,43 @@ require "jwt"
 
 module AppleMusic
   class Client
+    class ApiError < StandardError; end
     BASE_URL = "https://api.music.apple.com/v1/"
+
+    def self.search(term)
+      params = { term: term, types: ["songs"], l: "en-us" }
+      res = get("catalog/us/search", params)
+
+      JSON.parse(res.body)["results"]["songs"]
+    end
+
+    def self.search_hints(term)
+      params = { term: term, l: "en-us" };
+      res = AppleMusic::Client.get("catalog/us/search/hints", params)
+      if res.code == "200"
+        JSON.parse(res.body)
+      else
+        raise ApiError, JSON.parse(res.body)
+      end
+    end
+
+    def self.create_playlist(parent_id, name, description = "", track_data = [])
+      res = AppleMusic::Client.post("me/library/playlists", {
+        attributes: {
+          name: name,
+          description: description
+        },
+        relationships: {
+          tracks: { data: track_data },
+          parent: { data: [{ id: parent_id, type: "library-playlist-folders" }] }
+        }
+      })
+      if res.code == "201"
+        JSON.parse(res.body)["data"].first
+      else
+        raise ApiError, JSON.parse(res.body)
+      end
+    end
 
     def self.get(url, params = {})
       new.get(url, params)
@@ -25,8 +61,8 @@ module AppleMusic
       @music_id = ENV["APPLE_MUSIC_KEY_ID"]
       @token_expire_at =  Time.now + (60 * 60 * 24)
 
-      file = File.read("music_user_token.json")
-      @music_user_token = JSON.parse(file)["token"]
+      file = File.open("music_user_token.json", "r")
+      @music_user_token = JSON.parse(file.read)["token"] if file.size > 0
     end
 
     def get(endpoint, params={})
