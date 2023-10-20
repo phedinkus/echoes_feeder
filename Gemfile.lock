@@ -21,11 +21,18 @@ GEM
     bigdecimal (3.1.4)
     concurrent-ruby (1.2.2)
     connection_pool (2.4.1)
+    debug (1.8.0)
+      irb (>= 1.5.0)
+      reline (>= 0.3.1)
     dotenv (2.8.1)
     drb (2.1.1)
       ruby2_keywords
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
+    io-console (0.6.0)
+    irb (1.8.3)
+      rdoc
+      reline (>= 0.3.8)
     jwt (2.7.0)
     mini_portile2 (2.8.1)
     minitest (5.20.0)
@@ -37,13 +44,18 @@ GEM
     nokogiri (1.14.3)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
+    psych (5.0.1)
+      stringio
     puma (6.2.1)
       nio4r (~> 2.0)
     racc (1.6.2)
     rack (2.2.6.4)
     rack-protection (3.0.6)
       rack
-    rake (13.0.6)
+    rdoc (6.5.0)
+      psych (>= 4.0.0)
+    reline (0.3.9)
+      io-console (~> 0.5)
     rexml (3.2.5)
     rss (0.2.9)
       rexml
@@ -61,6 +73,7 @@ GEM
       tilt (~> 2.0)
     sqlite3 (1.6.2)
       mini_portile2 (~> 2.8.0)
+    stringio (3.0.4)
     tilt (2.1.0)
     timeout (0.4.0)
     tzinfo (2.0.6)
@@ -71,11 +84,11 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  debug
   dotenv
   jwt
   nokogiri
   puma
-  rake
   rss
   sinatra
   sinatra-contrib

@@ -6,27 +6,22 @@ require "jwt"
 module AppleMusic
   class Client
     class ApiError < StandardError; end
-    BASE_URL = "https://api.music.apple.com/v1/"
+    BASE_URL = "https://api.music.apple.com"
 
-    def self.search(term)
-      params = { term: term, types: ["songs"], l: "en-us" }
-      res = get("catalog/us/search", params)
+    def self.search(term, types: ["songs"])
+      params = { term: term, types: types, l: "en-us" }
+      res = get("/v1/catalog/us/search", params)
 
-      JSON.parse(res.body)["results"]["songs"]
+      res&.fetch("results")
     end
 
     def self.search_hints(term)
       params = { term: term, l: "en-us" };
-      res = AppleMusic::Client.get("catalog/us/search/hints", params)
-      if res.code == "200"
-        JSON.parse(res.body)
-      else
-        raise ApiError, JSON.parse(res.body)
-      end
+      AppleMusic::Client.get("/v1/catalog/us/search/hints", params)
     end
 
     def self.create_playlist(parent_id, name, description = "", track_data = [])
-      res = AppleMusic::Client.post("me/library/playlists", {
+      res = AppleMusic::Client.post("/v1/me/library/playlists", {
         attributes: {
           name: name,
           description: description
@@ -36,11 +31,7 @@ module AppleMusic
           parent: { data: [{ id: parent_id, type: "library-playlist-folders" }] }
         }
       })
-      if res.code == "201"
-        JSON.parse(res.body)["data"].first
-      else
-        raise ApiError, JSON.parse(res.body)
-      end
+      res["data"].first
     end
 
     def self.get(url, params = {})
@@ -71,7 +62,12 @@ module AppleMusic
 
       req = Net::HTTP::Get.new(uri)
       req["Authorization"] = "Bearer #{authentication_token}"
-      http(uri).request(req)
+      resp = http(uri).request(req)
+      resp_body = JSON.parse(resp.body)
+      if resp.code != "200"
+        raise ApiError, resp_body.merge({endpoint: endpoint, params: params})
+      end
+      resp_body
     end
 
     # POST https://api.music.apple.com/v1/me/library/playlists
@@ -84,7 +80,12 @@ module AppleMusic
       req.content_type = 'application/json'
       req.body = data.to_json.to_s
 
-      http(uri).request(req)
+      resp = http(uri).request(req)
+      resp_body = JSON.parse(resp.body)
+      if resp.code != "201"
+        raise ApiError, resp_body
+      end
+      resp_body
     end
 
     def authentication_token

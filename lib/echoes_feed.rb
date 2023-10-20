@@ -14,16 +14,17 @@ class EchoesFeed
     new.most_recent_playlist
   end
 
-  def get_most_recent_playlist_tracks
-    most_recent_playlist_rows.map do |row|
-      cells = row.css("td")
-      Track.new(
-        artist: cells[1].text,
-        name: cells[2].text,
-        album: cells[3].text
-      )
+  def playlists
+    feed.items.map do |item|
+      playlist_from_item(item)
     end
   end
+
+  def most_recent_playlist
+    playlist_from_item(most_recent_feed_item)
+  end
+
+  private
 
   def feed
     @feed ||= URI.open(URL) do |rss|
@@ -31,21 +32,18 @@ class EchoesFeed
     end
   end
 
-  def most_recent_feed_item
-    @feed_item ||= feed.items.first
-  end
-
-  def playlists_since(date)
-  end
-
-  def most_recent_playlist
-    content = Nokogiri::HTML(most_recent_feed_item.content_encoded)
+  def playlist_from_item(item)
+    content = Nokogiri::HTML(item.content_encoded)
     rows = content.css("tr").select do |row|
       cells = row.css("td")
       cells.length == 4 &&
       cells.first.text.match(TRACK_TIMESTAMP_PATTERN) &&
       !cells[1].text.match(BREAK_ROW_PATTERN)
     end
-    Playlist.create_from_feed(name: most_recent_feed_item.title,  raw_track_data: rows, created_at: most_recent_feed_item.pubDate)
+    Playlist.create_from_feed(name: item.title,  raw_track_data: rows, created_at: item.pubDate)
+  end
+
+  def most_recent_feed_item
+    @feed_item ||= feed.items.first
   end
 end
