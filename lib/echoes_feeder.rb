@@ -17,6 +17,9 @@ class EchoesFeeder
   def import_playlist!(playlist)
     saved_playlist = ImportedPlaylist.find_by(echoes_created_at: playlist.created_at.to_date)
     if saved_playlist.present?
+      if saved_playlist.name.nil?
+        saved_playlist.update!(name: playlist_name(playlist))
+      end
       puts "PLAYLIST ALREADY IMPORTED!"
       return
     end
@@ -28,18 +31,28 @@ class EchoesFeeder
     apple_playlist = create_apple_playlist!(playlist)
 
     if apple_playlist
-      ImportedPlaylist.create!(
-        name: apple_playlist["name"],
+      ip = ImportedPlaylist.create!(
+        name: apple_playlist["attributes"]["name"],
         apple_id: apple_playlist["id"],
         echoes_created_at: playlist.created_at.to_date
       )
       puts "SUCCESS!"
+      notification_command = <<-BASH
+        X="Created Echoes Playlist: #{ip.name}" /usr/bin/osascript -e 'display notification system attribute "X"'
+      BASH
+      system(notification_command)
     else
       puts "IMPORT FAILED!"
+      false
     end
   end
 
   private
+
+  def playlist_name(playlist)
+    name_parts = playlist.name.split(" – ")
+    "#{playlist.created_at.to_date.to_s} #{name_parts.last}"
+  end
 
   def enhance_tracks_with_apple_data!(playlist)
     playlist.tracks.each do |track|
@@ -71,11 +84,10 @@ class EchoesFeeder
     end
     raise TrackDataMissing if track_data.empty?
 
-    name_parts = playlist.name.split(" – ")
-    name = "#{playlist.created_at.to_date.to_s} #{name_parts.last}"
+    name = playlist_name(playlist)
 
     puts "creating Apple playlist..."
-    AppleMusic::Client.create_playlist(APPLE_ECHOES_FOLDER_ID, name, "", track_data)
+    AppleMusic::Client.create_playlist(APPLE_ECHOES_FOLDER_ID, name, track_data)
   end
 
   def search_track_name(track)

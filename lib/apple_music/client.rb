@@ -20,11 +20,11 @@ module AppleMusic
       AppleMusic::Client.get("/v1/catalog/us/search/hints", params)
     end
 
-    def self.create_playlist(parent_id, name, description = "", track_data = [])
+    def self.create_playlist(parent_id, name, track_data = [])
       res = AppleMusic::Client.post("/v1/me/library/playlists", {
         attributes: {
           name: name,
-          description: description
+          description: ""
         },
         relationships: {
           tracks: { data: track_data },
